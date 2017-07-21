@@ -120,12 +120,16 @@ Editor.prototype = {
         this.$textElem = $textElem
 
         // 绑定 onchange
-        $textContainerElem.on('click keyup', () => {
-            this.change &&  this.change()
-        })
+        $textContainerElem.on('click keyup', function () {
+            _this.change && _this.change();
+        });
+		// 绑定 onblur
+		$textElem.on('blur', function () {
+            _this.blur && _this.blur();
+        });
         $toolbarElem.on('click', function () {
-            this.change &&  this.change()
-        })
+            this.change && this.change();
+        });
     },
 
     // 封装 command
@@ -188,9 +192,11 @@ Editor.prototype = {
     _bindEvent: function () {
         // -------- 绑定 onchange 事件 --------
         let onChangeTimeoutId = 0
+        let onBlurTimeoutId = 0
         let beforeChangeHtml = this.txt.html()
         const config = this.config
         const onchange = config.onchange
+        const onblur = config.onblur
         if (onchange && typeof onchange === 'function'){
             // 触发 change 的有三个场景：
             // 1. $textContainerElem.on('click keyup')
@@ -213,6 +219,23 @@ Editor.prototype = {
                     beforeChangeHtml = currentHtml
                 }, 200)
             }   
+        }
+        
+        if (onblur && typeof onblur === 'function') {
+            this.blur = function () {
+                // 判断是否有变化
+                const currentHtml = this.txt.html()
+                
+                // 执行，使用节流
+                if (onBlurTimeoutId) {
+                    clearTimeout(onBlurTimeoutId)
+                }
+                onBlurTimeoutId = setTimeout(() => {
+                    // 触发配置的 onchange 函数
+                    onblur(currentHtml)
+                    beforeChangeHtml = currentHtml
+                }, 200)
+            }
         }
     },
 
