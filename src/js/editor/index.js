@@ -127,6 +127,12 @@ Editor.prototype = {
 		$textElem.on('blur', function () {
             _this.blur && _this.blur();
         });
+	// 绑定onpaste
+	$textElem.on('paste', function () {
+	setTimeout(function () {
+	_this.initSelection();
+	}, 50);
+        });
         $toolbarElem.on('click', function () {
             this.change && this.change();
         });
